@@ -1,6 +1,9 @@
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const extractCSS = new ExtractTextPlugin('[name].bundle.css');
+const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+
 module.exports = {
     context: __dirname + '/src',
     entry: {
@@ -29,12 +32,12 @@ module.exports = {
             },
             {
                 test: /\.scss$/,
-                //loader: extractCSS.extract(['css-loader', 'sass-loader'])
-                use: [
-                    'style-loader',                                 // outputs the css into a <style> tag in the index.html
-                    'css-loader',                                   // parses CSS into JavaScript and resolves any dependencies
-                    'sass-loader'                                   // Transforms sass into css
-                ]
+                loader: extractCSS.extract(['css-loader', 'sass-loader'])
+                // use: [
+                //     'style-loader',                                 // outputs the css into a <style> tag in the index.html
+                //     'css-loader',                                   // parses CSS into JavaScript and resolves any dependencies
+                //     'sass-loader'                                   // Transforms sass into css
+                // ]
             },
             {
                 test: /\.(png|jpg)$/,
@@ -48,11 +51,13 @@ module.exports = {
         ]
     },
     plugins: [
+        new CleanWebpackPlugin(['dist']),
         new webpack.optimize.CommonsChunkPlugin({
             name: 'commons',
             filename: 'commons.js'
         }),
-        new webpack.NamedModulesPlugin(),
-        extractCSS
+        new webpack.NamedModulesPlugin(),                            // See the name of modules when HMR updates some modules
+        extractCSS,
+        new OptimizeCssAssetsPlugin()
     ]
 }
